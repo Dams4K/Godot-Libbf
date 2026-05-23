@@ -1,0 +1,6 @@
+[submodule "libbf"]
+	path = libbf
+	url = https://github.com/rurban/libbf.git
+[submodule "godot-cpp"]
+	path = godot-cpp
+	url = https://github.com/godotengine/godot-cpp.git
