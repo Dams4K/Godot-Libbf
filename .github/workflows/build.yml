@@ -152,6 +152,7 @@ jobs:
         git checkout --orphan build
         
         git rm -rf .
+        git add -f project/bin/
         
         git add project/bin/
         
