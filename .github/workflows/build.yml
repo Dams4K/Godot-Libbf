@@ -63,8 +63,10 @@ jobs:
       - name: Cache SCons
         uses: actions/cache@v4
         with:
-          path: ~/.scons_cache
-          key: ${{ runner.os }}-scons-${{ matrix.artifact_name }}
+          path: /root/.scons_cache
+          key: scons-${{ matrix.artifact_name }}-${{ hashFiles('src/**', 'SConstruct') }}
+          restore-keys: |
+            scons-${{ matrix.artifact_name }}
         
       - name: Ensure SCons cache directory exists
         run: mkdir -p $HOME/.scons_cache
@@ -152,9 +154,9 @@ jobs:
         git checkout --orphan build
         
         git rm -rf .
-        git add -f project/bin/
         
-        git add project/bin/
+        git add -f bin/
+        git mv bin/* .
         
         git commit -m "Build ${{ github.ref_name }}"
         git push origin build --force
