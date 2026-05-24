@@ -57,6 +57,19 @@ String BigInt::to_string() const {
     return result;
 }
 
+String BigInt::to_scientific(int decimals) const {
+    size_t len;
+    char *buf = bf_ftoa(&len, &value, 10, decimals, 
+                        BF_RNDZ | BF_FTOA_FORMAT_FIXED | BF_FTOA_FORCE_EXP);
+    String result = String(buf);
+    bf_free(&ctx, buf);
+    return result;
+}
+
+String BigInt::to_metrics(int digits) const {
+    return String("");
+}
+
 int64_t BigInt::to_int64() const {
     int64_t result = 0;
     bf_get_int64(&result, &value, 0);
@@ -273,6 +286,8 @@ void BigInt::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("from_string", "value"), &BigInt::from_string);
     ClassDB::bind_method(D_METHOD("to_string"), &BigInt::to_string);
+    ClassDB::bind_method(D_METHOD("to_scientific", "decimals"), &BigInt::to_scientific);
+    ClassDB::bind_method(D_METHOD("to_metrics", "digits"), &BigInt::to_metrics);
     ClassDB::bind_method(D_METHOD("to_int64"), &BigInt::to_int64);
 
     ClassDB::bind_static_method("BigInt", D_METHOD("plus", "a", "b"), &BigInt::plus);

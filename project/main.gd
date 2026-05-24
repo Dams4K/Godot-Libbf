@@ -47,6 +47,7 @@ func _ready() -> void:
 	test_is_negative()
 	test_large_numbers()
 	test_edge_cases()
+	test_special_to_string()
 	print("")
 	print("─────────────────────────────")
 	print("Results: %d passed, %d failed" % [passed, failed])
@@ -71,6 +72,7 @@ func test_from_string() -> void:
 	assert_eq("create_from_string",       BigInt.create_from_string("99999999999999999999").to_string(), "99999999999999999999")
 	assert_eq("create_from_string neg",   BigInt.create_from_string("-42").to_string(), "-42")
 	assert_eq("create_from_string zero",  BigInt.create_from_string("0").to_string(), "0")
+	assert_eq("create_from_string('78628793612897467864892673081264809716325785327894')",  BigInt.create_from_string("78628793612897467864892673081264809716325785327894").to_string(), "78628793612897467864892673081264809716325785327894")
 
 # ─── plus ────────────────────────────────────────────────────────────────────
 
@@ -82,6 +84,8 @@ func test_plus() -> void:
 	assert_eq("0 + 0",       BigInt.plus(BigInt.create(0), BigInt.create(0)).to_string(), "0")
 	assert_eq("-1 + 1",      BigInt.plus(BigInt.create(-1), BigInt.create(1)).to_string(), "0")
 	assert_eq("large + 1",   BigInt.plus(BigInt.create_from_string("9999999999999999999"), BigInt.create(1)).to_string(), "10000000000000000000")
+	assert_eq("78628793612897467864892673081264809716325785327894 + 1", BigInt.plus(BigInt.create_from_string("78628793612897467864892673081264809716325785327894"), BigInt.create(1)).to_string(), "78628793612897467864892673081264809716325785327895")
+	assert_eq("INT64_MAX+1", BigInt.plus_int(BigInt.create(INT64_MAX), 1).to_string(), "9223372036854775808")
 
 # ─── minus ───────────────────────────────────────────────────────────────────
 
@@ -299,3 +303,8 @@ func test_edge_cases() -> void:
 	# to_int64 aller-retour
 	var b := BigInt.create(123456789)
 	assert_eq("to_int64 round-trip", str(b.to_int64()), "123456789")
+
+# ─── Special to string ────────────────────────────────────────────────────────
+
+func test_special_to_string() -> void:
+	assert_eq("Assert scientific", BigInt.create(3187287192634).to_scientific(3), "3.18e12")

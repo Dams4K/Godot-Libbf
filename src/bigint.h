@@ -68,6 +68,8 @@ public:
 
     void from_string(const String &p_str);
     String to_string() const;
+    String to_scientific(int decimals) const;
+    String to_metrics(int digits) const;
     int64_t to_int64() const;
 };
 

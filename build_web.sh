@@ -6,4 +6,5 @@ podman run --rm \
   -w /godot-libbf \
   -e PATH=/root/emsdk/upstream/emscripten:/root/emsdk/upstream/bin:/usr/local/bin:/usr/bin \
   localhost/godot-web:4.7-f43 \
-  bash -c 'scons platform=web target=template_debug && scons platform=web target=template_release'
+  bash -c 'scons platform=web target=template_debug threads=no && scons platform=web target=template_release threads=no \
+          && scons platform=web target=template_debug threads=yes && scons platform=web target=template_release threads=yes'
