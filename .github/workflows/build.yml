@@ -39,17 +39,17 @@ jobs:
               PATH_EXTRA: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin
             artifact_name: android
             extra_args: ""
-          - platform: web-threads
+          - platform: web
             image: ghcr.io/dams4k/godot-web:4.6-f43
             env:
               PATH_EXTRA: /root/emsdk/upstream/emscripten:/root/emsdk/upstream/bin:/usr/local/bin:/usr/bin
-            artifact_name: web
+            artifact_name: web-threads
             extra_args: ""
-          - platform: web-nothreads
+          - platform: web
             image: ghcr.io/dams4k/godot-web:4.6-f43
             env:
               PATH_EXTRA: /root/emsdk/upstream/emscripten:/root/emsdk/upstream/bin:/usr/local/bin:/usr/bin
-            artifact_name: web
+            artifact_name: web-nothreads
             extra_args: "threads=no"
     container:
       image: ${{ matrix.image }}
