@@ -1,0 +1,149 @@
+name: Compile extension
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  compile:
+    name: Compile (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            image: ghcr.io/dams4k/godot-linux:4.6-f43
+            env:
+              CXX: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin/g++
+              CC: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin/gcc
+              AR: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin/gcc-ar
+              PATH_EXTRA: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin
+            artifact_name: linux
+            extra_args: ""
+          - platform: windows
+            image: ghcr.io/dams4k/godot-windows:4.6-f43
+            env:
+              CXX: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin/g++
+              CC: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin/gcc
+              AR: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin/gcc-ar
+              PATH_EXTRA: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin
+            artifact_name: windows
+            extra_args: ""
+          - platform: android
+            image: ghcr.io/dams4k/godot-android:4.6-f43
+            env:
+              CXX: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin/g++
+              CC: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin/gcc
+              AR: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin/gcc-ar
+              PATH_EXTRA: /root/x86_64-godot-linux-gnu_sdk-buildroot/bin
+            artifact_name: android
+            extra_args: ""
+          - platform: web-threads
+            image: ghcr.io/dams4k/godot-web:4.6-f43
+            env:
+              PATH_EXTRA: /root/emsdk/upstream/emscripten:/root/emsdk/upstream/bin:/usr/local/bin:/usr/bin
+            artifact_name: web
+            extra_args: ""
+          - platform: web-nothreads
+            image: ghcr.io/dams4k/godot-web:4.6-f43
+            env:
+              PATH_EXTRA: /root/emsdk/upstream/emscripten:/root/emsdk/upstream/bin:/usr/local/bin:/usr/bin
+            artifact_name: web
+            extra_args: "threads=no"
+    container:
+      image: ${{ matrix.image }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Compile extension
+        env:
+          CXX: ${{ matrix.env.CXX }}
+          CC: ${{ matrix.env.CC }}
+          AR: ${{ matrix.env.AR }}
+        run: |
+          export PATH="${{ matrix.env.PATH_EXTRA }}:$PATH"
+          scons platform=${{ matrix.platform }} target=template_release ${{ matrix.extra_args }}
+          scons platform=${{ matrix.platform }} target=template_debug ${{ matrix.extra_args }}
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot_libbf-${{ matrix.artifact_name }}
+          path: |
+            project/bin/
+          retention-days: 1
+    
+  release:
+    name: Publish Release
+    needs: compile
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: bin/
+        merge-multiple: true
+
+    - name: List compiled files (debug)
+      run: ls bin/
+
+    - name: Create gdextension file
+      run: |
+        cat > bin/bigint.gdextension << 'EOF'
+        [configuration]
+
+        entry_symbol = "bigint_library_init"
+        compatibility_minimum = "4.1"
+
+        [libraries]
+
+        windows.debug.x86_32 = "res://bin/libbigint.windows.template_debug.x86_32.dll"
+        windows.release.x86_32 = "res://bin/libbigint.windows.template_release.x86_32.dll"
+        windows.debug.x86_64 = "res://bin/libbigint.windows.template_debug.x86_64.dll"
+        windows.release.x86_64 = "res://bin/libbigint.windows.template_release.x86_64.dll"
+        windows.debug.arm64 = "res://bin/libbigint.windows.template_debug.arm64.dll"
+        windows.release.arm64 = "res://bin/libbigint.windows.template_release.arm64.dll"
+        linux.debug.x86_32 = "res://bin/libbigint.linux.template_debug.x86_32.so"
+        linux.release.x86_32 = "res://bin/libbigint.linux.template_release.x86_32.so"
+        linux.debug.x86_64 = "res://bin/libbigint.linux.template_debug.x86_64.so"
+        linux.release.x86_64 = "res://bin/libbigint.linux.template_release.x86_64.so"
+        linux.debug.arm32 = "res://bin/libbigint.linux.template_debug.arm32.so"
+        linux.release.arm32 = "res://bin/libbigint.linux.template_release.arm32.so"
+        linux.debug.arm64 = "res://bin/libbigint.linux.template_debug.arm64.so"
+        linux.release.arm64 = "res://bin/libbigint.linux.template_release.arm64.so"
+        linux.debug.rv64 = "res://bin/libbigint.linux.template_debug.rv64.so"
+        linux.release.rv64 = "res://bin/libbigint.linux.template_release.rv64.so"
+        android.debug.x86_64 = "res://bin/libbigint.android.template_debug.x86_64.so"
+        android.release.x86_64 = "res://bin/libbigint.android.template_release.x86_64.so"
+        android.debug.arm64 = "res://bin/libbigint.android.template_debug.arm64.so"
+        android.release.arm64 = "res://bin/libbigint.android.template_release.arm64.so"
+        web.debug.threads.wasm32 = "res://bin/libbigint.web.template_debug.wasm32.wasm"
+        web.release.threads.wasm32 = "res://bin/libbigint.web.template_release.wasm32.wasm"
+        web.debug.wasm32 = "res://bin/libbigint.web.template_debug.wasm32.nothreads.wasm"
+        web.release.wasm32 = "res://bin/libbigint.web.template_release.wasm32.nothreads.wasm"
+        EOF
+    
+    - name: Package release zip
+      run: |
+        zip -j bigint-${{ github.ref_name }}.zip \
+          bigint.gdextension \
+          bin/*
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        generate_release_notes: true
+        files: bigint-${{ github.ref_name }}.zip
