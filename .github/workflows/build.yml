@@ -154,8 +154,8 @@ jobs:
         
         git rm -rf .
 
-        git add -f bin/
-        git mv bin/* .
+        git add -f libbf_bin/
+        git mv libbf_bin/* .
         
         git commit -m "Build ${{ github.ref_name }}"
         git push origin build --force
@@ -164,7 +164,7 @@ jobs:
       run: |
         zip -j bigint-${{ github.ref_name }}.zip \
           bigint.gdextension \
-          bin/*
+          libbf_bin/*
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
