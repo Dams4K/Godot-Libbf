@@ -4,5 +4,5 @@
 
 using namespace godot;
 
-void initialize_bigint_module(ModuleInitializationLevel p_level);
-void uninitialize_bigint_module(ModuleInitializationLevel p_level);
+void initialize_libbf_module(ModuleInitializationLevel p_level);
+void uninitialize_libbf_module(ModuleInitializationLevel p_level);

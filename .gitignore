@@ -1,3 +1,4 @@
 *.o
 *.os
 .sconsign.dblite
+libbf_bin/
