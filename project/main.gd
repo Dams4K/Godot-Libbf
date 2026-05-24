@@ -59,7 +59,7 @@ func test_create() -> void:
 	assert_eq("create(1)",        BigInt.create(1).to_string(),        "1")
 	assert_eq("create(-1)",       BigInt.create(-1).to_string(),       "-1")
 	assert_eq("create(1000000)",  BigInt.create(1000000).to_string(),  "1000000")
-	assert_eq("create(INT64_MAX)", BigInt.create(9223372036854775807).to_string(), "9223372036854775807")
+	assert_eq("create(INT64_MAX)", BigInt.create(INT64_MAX).to_string(), str(INT64_MAX))
 
 # ─── from_string / create_from_string ────────────────────────────────────────
 

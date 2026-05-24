@@ -8,5 +8,5 @@ podman run --rm \
   -e CC=/root/x86_64-godot-linux-gnu_sdk-buildroot/bin/gcc \
   -e AR=/root/x86_64-godot-linux-gnu_sdk-buildroot/bin/gcc-ar \
   -e PATH=/root/x86_64-godot-linux-gnu_sdk-buildroot/bin:$PATH \
-  localhost/godot-linux:4.7-f43 \
-  bash -c 'scons platform=linux target=template_debug && scons platform=linux target=template_release'
+  localhost/godot-android:4.7-f43 \
+  bash -c 'scons platform=android target=template_debug && scons platform=android target=template_release'
