@@ -6,6 +6,19 @@ using namespace godot;
 bf_context_t BigInt::ctx;
 bool BigInt::ctx_initialized = false;
 
+static const struct { int64_t exp; const char* suffix; } SUFFIXES[] = {
+    { 30, "No" },
+    { 27, "Oc" },
+    { 24, "Sp" },
+    { 21, "Sx" },
+    { 18, "Qi" },
+    { 15, "Qa" },
+    { 12, "T"  },
+    {  9, "B"  },
+    {  6, "M"  },
+    {  3, "K"  },
+};
+
 static void *bf_realloc_godot(void *opaque, void *ptr, size_t size) {
     if (size == 0) {
         memfree(ptr);
@@ -67,7 +80,31 @@ String BigInt::to_scientific(int decimals) const {
 }
 
 String BigInt::to_metrics(int digits) const {
-    return String("");
+    if (this->is_zero()) return String("0");
+
+    String str = this->to_string();
+    bool negative = this->is_negative();
+    if (negative) str = str.substr(1);
+    int64_t num_digits = str.length();
+    str = str.substr(0, digits);
+
+    for (auto& suffix : SUFFIXES) {
+        if (num_digits <= suffix.exp) continue;
+        
+        int int_len = num_digits - suffix.exp;
+        
+        String int_part = str.substr(0, int_len);
+        String dec_part = str.substr(int_len);
+
+        String result = int_part;
+        if (!dec_part.is_empty()) {
+            result += "." + dec_part;   
+        }
+        result += suffix.suffix;
+        return (negative ? "-" : "") + result;
+    }
+
+    return (negative ? "-" : "") + str;
 }
 
 int64_t BigInt::to_int64() const {

@@ -69,7 +69,7 @@ jobs:
             scons-${{ matrix.artifact_name }}
         
       - name: Ensure SCons cache directory exists
-        run: mkdir -p $HOME/.scons_cache
+        run: mkdir -p /root/.scons_cache
 
       - name: Compile extension
         env:
@@ -162,9 +162,7 @@ jobs:
 
     - name: Package release zip
       run: |
-        zip -j bigint-${{ github.ref_name }}.zip \
-          bigint.gdextension \
-          libbf_bin/*
+        zip -j libbf-${{ github.ref_name }}.zip libbf_bin/*
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
