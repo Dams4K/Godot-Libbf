@@ -63,13 +63,13 @@ jobs:
       - name: Cache SCons
         uses: actions/cache@v4
         with:
-          path: /root/.scons_cache
+          path: .scons_cache
           key: scons-${{ matrix.artifact_name }}-${{ hashFiles('src/**', 'SConstruct') }}
           restore-keys: |
             scons-${{ matrix.artifact_name }}
         
       - name: Ensure SCons cache directory exists
-        run: mkdir -p /root/.scons_cache
+        run: mkdir -p .scons_cache
 
       - name: Compile extension
         env:
@@ -78,8 +78,8 @@ jobs:
           AR: ${{ matrix.env.AR }}
         run: |
           export PATH="${{ matrix.env.PATH_EXTRA }}:$PATH"
-          scons cache_path=/root/.scons_cache platform=${{ matrix.platform }} target=template_release ${{ matrix.extra_args }}
-          scons cache_path=/root/.scons_cache platform=${{ matrix.platform }} target=template_debug ${{ matrix.extra_args }}
+          scons cache_path=.scons_cache platform=${{ matrix.platform }} target=template_release ${{ matrix.extra_args }}
+          scons cache_path=.scons_cache platform=${{ matrix.platform }} target=template_debug ${{ matrix.extra_args }}
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
