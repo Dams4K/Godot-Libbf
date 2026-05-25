@@ -110,7 +110,7 @@ jobs:
 
     - name: Create gdextension file
       run: |
-        cat > addons/libbf/bin/libbf.gdextension << 'EOF'
+        cat > libbf_bin/libbf.gdextension << 'EOF'
         [configuration]
 
         entry_symbol = "libbf_library_init"
