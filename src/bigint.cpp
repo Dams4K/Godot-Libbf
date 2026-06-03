@@ -203,6 +203,26 @@ Ref<BigInt> BigInt::divide_int(const Ref<BigInt> a, int64_t b) {
     return res;
 }
 
+Ref<BigInt> BigInt::power_int(const Ref<BigInt> base, int64_t exp) {
+    ERR_FAIL_COND_V_MSG(exp < 0, memnew(BigInt), "BigInt::power_int: exp can't be negative");
+
+    Ref<BigInt> result = memnew(BigInt);
+    bf_set_si(&result->value, 1);
+
+    Ref<BigInt> b = memnew(BigInt);
+    bf_set(&b->value, &base->value);
+
+    while (exp > 0) {
+        if (exp & 1) {
+            bf_mul(&result->value, &result->value, &b->value, BF_PREC_INF, BF_RNDZ);
+        }
+        bf_mul(&b->value, &b->value, &b->value, BF_PREC_INF, BF_RNDZ);
+        exp >>= 1;
+    }
+
+    return result;
+}
+
 bool BigInt::is_equal(const Ref<BigInt> a, const Ref<BigInt> b) {
     return bf_cmp(&a->value, &b->value) == 0;
 }
@@ -287,6 +307,27 @@ Ref<BigInt> BigInt::div_int(int64_t b) {
     return Ref<BigInt>(this);
 }
 
+Ref<BigInt> BigInt::pow_int(int64_t exp) {
+    ERR_FAIL_COND_V_MSG(exp < 0, Ref<BigInt>(this), "BigInt::pow_int: exp can't be negative");
+
+    bf_t base_copy;
+    bf_init(&ctx, &base_copy);
+    bf_set(&base_copy, &value);
+
+    bf_set_si(&value, 1);
+
+    while (exp > 0) {
+        if (exp & 1) {
+            bf_mul(&value, &value, &base_copy, BF_PREC_INF, BF_RNDZ);
+        }
+        bf_mul(&base_copy, &base_copy, &base_copy, BF_PREC_INF, BF_RNDZ);
+        exp >>= 1;
+    }
+
+    bf_delete(&base_copy);
+    return Ref<BigInt>(this);
+}
+
 // ─── Comparisons ─────────────────────────────────────────────────────────────
 
 bool BigInt::equals(const Ref<BigInt> other) const {
@@ -340,6 +381,7 @@ void BigInt::_bind_methods() {
     ClassDB::bind_static_method("BigInt", D_METHOD("minus_int", "a", "b"), &BigInt::minus_int);
     ClassDB::bind_static_method("BigInt", D_METHOD("multiply_int", "a", "b"), &BigInt::multiply_int);
     ClassDB::bind_static_method("BigInt", D_METHOD("divide_int", "a", "b"), &BigInt::divide_int);
+    ClassDB::bind_static_method("BigInt", D_METHOD("power_int", "base", "exp"), &BigInt::power_int);
 
     ClassDB::bind_static_method("BigInt", D_METHOD("is_equal", "a", "b"), &BigInt::is_equal);
     ClassDB::bind_static_method("BigInt", D_METHOD("is_less", "a", "b"), &BigInt::is_less);
@@ -356,6 +398,7 @@ void BigInt::_bind_methods() {
     ClassDB::bind_method(D_METHOD("sub_int", "value"), &BigInt::sub_int);
     ClassDB::bind_method(D_METHOD("mul_int", "value"), &BigInt::mul_int);
     ClassDB::bind_method(D_METHOD("div_int", "value"), &BigInt::div_int);
+    ClassDB::bind_method(D_METHOD("pow_int", "exp"), &BigInt::pow_int);
 
     ClassDB::bind_method(D_METHOD("equals", "other"), &BigInt::equals);
     ClassDB::bind_method(D_METHOD("less_than", "other"), &BigInt::less_than);

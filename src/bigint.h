@@ -41,6 +41,7 @@ public:
     static Ref<BigInt> minus_int(const Ref<BigInt> a, int64_t b);
     static Ref<BigInt> multiply_int(const Ref<BigInt> a, int64_t b);
     static Ref<BigInt> divide_int(const Ref<BigInt> a, int64_t b);
+    static Ref<BigInt> power_int(const Ref<BigInt> base, int64_t exp);
 
     static bool is_equal(const Ref<BigInt> a, const Ref<BigInt> b);
     static bool is_less(const Ref<BigInt> a, const Ref<BigInt> b);
@@ -56,6 +57,7 @@ public:
     Ref<BigInt> sub_int(int64_t p_value);
     Ref<BigInt> mul_int(int64_t p_value);
     Ref<BigInt> div_int(int64_t p_value);
+    Ref<BigInt> pow_int(int64_t exp);
 
     bool is_zero() const;
     bool is_negative() const;
